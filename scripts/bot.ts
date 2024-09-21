@@ -63,7 +63,6 @@ bot.start((ctx: any) => {
       ],
     },
   };
-  console.log(`spoof telegram here: http://localhost:3000?telegramAuthToken=${encodedTelegramAuthToken}`)
 
   // Send a welcome message with the inline keyboard
   ctx.reply("Welcome to XYZ Mini Web App", keyboard);

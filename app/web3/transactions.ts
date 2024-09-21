@@ -1,6 +1,5 @@
 import { pubClient } from "./viem";
 import { erc20Abi, WalletClient } from "viem";
-import { Address } from "viem";
 import { contractAddress } from "../helpers/constants";
 
 const handleRead = async (setSymbol: (symbol: string) => void) => {
@@ -19,13 +18,11 @@ const handleRead = async (setSymbol: (symbol: string) => void) => {
 
 const handleWrite = async (walletClient: WalletClient) => {
   try {
-    console.log("1", walletClient);
     if (!walletClient || !walletClient.account) {
       console.error("No wallet client address found");
       return;
     }
 
-    console.log("2", walletClient);
     const { request } = await pubClient.simulateContract({
       address: contractAddress,
       abi: erc20Abi,

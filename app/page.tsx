@@ -15,6 +15,8 @@ export default function Main() {
   const { telegramSignIn } = useTelegramLogin();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [symbol, setSymbol] = useState<string | null>(null);
+  const [isReadLoading, setIsReadLoading] = useState<boolean>(false);
+  const [isWriteLoading, setIsWriteLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (!sdkHasLoaded) return;
@@ -30,11 +32,14 @@ export default function Main() {
   }, [sdkHasLoaded]);
 
   const getWalletClient = async () => {
-    console.log("0.1", primaryWallet);
-    if (!primaryWallet || !isEthereumWallet(primaryWallet)) return null;
-    const walletClient = await primaryWallet.getWalletClient();
-    console.log("0.2", walletClient);
-    return walletClient;
+    try {
+      if (!primaryWallet || !isEthereumWallet(primaryWallet)) return null;
+      const walletClient = await primaryWallet.getWalletClient();
+      return walletClient;
+    } catch (error) {
+      console.error("Error getting wallet client:", error);
+      return null;
+    }
   };
 
   return (
@@ -67,21 +72,29 @@ export default function Main() {
 
           <div className="flex space-x-4 mt-4 justify-center">
             <button
-              onClick={() => handleRead(setSymbol)}
+              onClick={async () => {
+                setIsReadLoading(true);
+                await handleRead(setSymbol);
+                setIsReadLoading(false);
+              }}
               className="bg-green-500 text-white font-semibold py-2 px-4 rounded hover:bg-green-600 transition duration-300"
+              disabled={isReadLoading}
             >
-              Read
+              {isReadLoading ? "Reading..." : "Read"}
             </button>
             <button
               onClick={async () => {
+                setIsWriteLoading(true);
                 const walletClient = await getWalletClient();
                 if (walletClient) {
-                  handleWrite(walletClient);
+                  await handleWrite(walletClient);
                 }
+                setIsWriteLoading(false);
               }}
               className="bg-red-500 text-white font-semibold py-2 px-4 rounded hover:bg-red-600 transition duration-300"
+              disabled={isWriteLoading}
             >
-              Write
+              {isWriteLoading ? "Writing..." : "Write"}
             </button>
           </div>
 
