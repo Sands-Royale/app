@@ -9,6 +9,12 @@ import {
 import { handleRead, handleWrite } from "./web3/transactions";
 import Spinner from "./Spinner";
 import { WalletClient } from "viem";
+import TicketPurchaser from "./components/TicketPurchaser";
+import LiquidityProvider from "./components/LiquidityProvider";
+import TimerDisplay from "./components/displays/TimerDisplay";
+import JackpotDisplay from "./components/displays/JackpotDisplay";
+import WinnerDisplay from "./components/displays/WinnerDisplay";
+import TabNavigation from "./components/navigations/TabNavigation";
 
 export default function Main() {
   const { sdkHasLoaded, user, primaryWallet } = useDynamicContext();
@@ -19,6 +25,7 @@ export default function Main() {
   const [timeRemaining, setTimeRemaining] = useState(44647);
   const [ticketCount, setTicketCount] = useState(10);
   const [winner, setWinner] = useState(null);
+  const [activeTab, setActiveTab] = useState("tickets");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -80,73 +87,53 @@ export default function Main() {
     <div className="min-h-screen flex flex-col items-center justify-center text-white bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 font-mono">
       <div className="w-full max-w-md p-6 bg-black/50 backdrop-blur-xl rounded-3xl shadow-2xl border border-cyan-500/30">
         <h1 className="text-4xl font-bold mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-pink-500">
-          JACKPOT
+          MARINA SANDS JACKPOT
         </h1>
 
-        <div className="bg-gradient-to-r from-indigo-900 to-purple-900 p-4 rounded-2xl mb-6 border border-cyan-500/30">
-          <p className="text-cyan-400 text-5xl font-bold text-center mb-2">
-            {jackpotSize.toString().padStart(5, "0")}
-          </p>
-          <div className="flex justify-between text-pink-400">
-            <span>{time.hours.toString().padStart(2, "0")}</span>
-            <span>{time.minutes.toString().padStart(2, "0")}</span>
-            <span>{time.secs.toString().padStart(2, "0")}</span>
-          </div>
-          <div className="flex justify-between text-xs text-cyan-400">
-            <span>HRS</span>
-            <span>MIN</span>
-            <span>SEC</span>
-          </div>
-        </div>
+        <JackpotDisplay jackpotSize={jackpotSize} />
+        <TimerDisplay time={time} />
 
         {isLoading ? (
           <Spinner />
         ) : (
           <>
-            <div className="bg-gradient-to-r from-indigo-900 to-purple-900 p-4 rounded-2xl mb-6 border border-cyan-500/30">
-              <p className="font-bold mb-4 text-cyan-400">
-                Buy Lottery Tickets
-              </p>
-              <div className="flex justify-between mb-4">
-                <input
-                  type="number"
-                  value={ticketCount}
-                  onChange={(e) => setTicketCount(Number(e.target.value))}
-                  className="bg-black/50 p-2 rounded-lg w-1/2 text-cyan-400 border border-cyan-500/30"
-                />
-                <button onClick={handleBuyTickets} className={buttonClass}>
-                  Buy
-                </button>
-              </div>
-            </div>
+            <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <button onClick={handleProvideLiquidity} className={buttonClass}>
-                Provide Liquidity
-              </button>
-              <button onClick={handleWithdrawLiquidity} className={buttonClass}>
-                Withdraw Liquidity
-              </button>
-            </div>
+            {activeTab === "tickets" ? (
+              <TicketPurchaser
+                ticketCount={ticketCount}
+                setTicketCount={setTicketCount}
+                handleBuyTickets={handleBuyTickets}
+                buttonClass={buttonClass}
+              />
+            ) : (
+              <LiquidityProvider
+                handleProvideLiquidity={handleProvideLiquidity}
+                handleWithdrawLiquidity={handleWithdrawLiquidity}
+                buttonClass={buttonClass}
+              />
+            )}
 
-            <div className="bg-gradient-to-r from-indigo-900 to-purple-900 p-4 rounded-2xl mb-6 border border-cyan-500/30">
-              <p className="font-bold mb-2 text-cyan-400">Latest Winner</p>
-              <p className="text-pink-400">
-                {winner ? winner : "No winner yet"}
-              </p>
-            </div>
+            <WinnerDisplay winner={winner} />
 
             {isWalletLoading ? (
               <Spinner />
-            ) : (
-              <div className="flex flex-col items-center justify-center">
+            ) : !user ? (
+              <div className="flex flex-col items-center justify-center mt-6">
                 <p className="text-cyan-400 mt-4 mb-4 text-center">
                   <span className="mr-2">🏅</span>
                   Connect your wallet to participate!
                 </p>
-                <div>
-                  <DynamicWidget />
-                </div>
+                <button
+                  onClick={() => telegramSignIn({ forceCreateUser: true })}
+                  className="bg-white text-black font-bold py-2 px-4 rounded-full shadow-lg hover:bg-gray-200 transition duration-300 ease-in-out"
+                >
+                  Log in or sign up
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center">
+                <DynamicWidget />
               </div>
             )}
           </>
