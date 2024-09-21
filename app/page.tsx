@@ -1,58 +1,112 @@
 "use client";
-import { useEffect, useState } from "react";
-import {
-  DynamicWidget,
-  useTelegramLogin,
-  useDynamicContext,
-} from "../lib/dynamic";
-
+import React, { useState, useEffect } from "react";
+// import { DynamicWidget, useTelegramLogin, useDynamicContext } from "../lib/dynamic";
 import Spinner from "./Spinner";
 
 export default function Main() {
-  const { sdkHasLoaded, user } = useDynamicContext();
-  const { telegramSignIn } = useTelegramLogin();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  // const { sdkHasLoaded, user } = useDynamicContext();
+  // const { telegramSignIn } = useTelegramLogin();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [jackpotSize, setJackpotSize] = useState(2558);
+  const [timeRemaining, setTimeRemaining] = useState(44647);
+  const [ticketCount, setTicketCount] = useState(10);
+  const [winner, setWinner] = useState(null);
 
   useEffect(() => {
-    if (!sdkHasLoaded) return;
+    const timer = setInterval(() => {
+      setTimeRemaining((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
-    const signIn = async () => {
-      if (!user) {
-        await telegramSignIn({ forceCreateUser: true });
-      }
-      setIsLoading(false);
-    };
+  const formatTime = (seconds) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return { hours, minutes, secs };
+  };
 
-    signIn();
-  }, [sdkHasLoaded]);
+  const time = formatTime(timeRemaining);
+
+  const handleBuyTickets = () => {
+    alert(`Buying ${ticketCount} tickets`);
+  };
+
+  const handleProvideLiquidity = () => {
+    alert("Providing liquidity");
+  };
+
+  const handleWithdrawLiquidity = () => {
+    alert("Withdrawing liquidity");
+  };
+
+  const buttonClass = "bg-gradient-to-r from-cyan-400 to-pink-500 text-white font-bold py-2 px-4 rounded-full shadow-lg hover:from-cyan-500 hover:to-pink-600 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105 border border-white/20";
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-black" style={{backgroundColor: "#f9f9fb", backgroundImage: "url('/background-pattern.svg')", backgroundBlendMode: "overlay", backgroundRepeat: "repeat"}}>
-      <div className="flex flex-col items-center justify-center text-center max-w-3xl px-4">
-        <div className="mb-6">
-          <div className="inline-flex items-center justify-center">
-            <img src="/logo.png" alt="logo" className="w-16 h-auto" />
+    <div className="min-h-screen flex flex-col items-center justify-center text-white bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 font-mono">
+      <div className="w-full max-w-md p-6 bg-black/50 backdrop-blur-xl rounded-3xl shadow-2xl border border-cyan-500/30">
+        <h1 className="text-4xl font-bold mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-pink-500">
+          JACKPOT
+        </h1>
+        
+        <div className="bg-gradient-to-r from-indigo-900 to-purple-900 p-4 rounded-2xl mb-6 border border-cyan-500/30">
+          <p className="text-cyan-400 text-5xl font-bold text-center mb-2">{jackpotSize.toString().padStart(5, '0')}</p>
+          <div className="flex justify-between text-pink-400">
+            <span>{time.hours.toString().padStart(2, '0')}</span>
+            <span>{time.minutes.toString().padStart(2, '0')}</span>
+            <span>{time.secs.toString().padStart(2, '0')}</span>
+          </div>
+          <div className="flex justify-between text-xs text-cyan-400">
+            <span>HRS</span>
+            <span>MIN</span>
+            <span>SEC</span>
           </div>
         </div>
-
-        {isLoading ? <Spinner /> : <DynamicWidget />}
-
-        <div className="bg-white p-6 rounded-lg shadow-sm mb-8 mt-8">
-          <h2 className="text-2xl font-semibold mb-4">You got an auto-wallet!</h2>
-          <p className="mb-4">
-            Zero clicks, one multi-chain wallet. We automatically created an embedded wallet for you.
-          </p>
-          <h3 className="text-xl font-semibold mb-2">How This works</h3>
-          <ul className="list-disc list-inside mb-4 flex flex-col items-start">
-            <li>We utilize the Telegram authentication token</li>
-            <li>Token is verified and used to create the end user wallet</li>
-            <li>The same wallet is accessible on desktop and mobile platforms</li>
-            <li>If the end user logs in with Telegram later on your site, your wallet is still available</li>
-          </ul>
-          <a href="https://docs.dynamic.xyz/guides/integrations/telegram/telegram-auto-wallets" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block bg-blue-600 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700 transition duration-300">
-            Learn More in Our Docs
-          </a>
-        </div>
+        
+        {isLoading ? (
+          <Spinner />
+        ) : (
+          <>
+            <div className="bg-gradient-to-r from-indigo-900 to-purple-900 p-4 rounded-2xl mb-6 border border-cyan-500/30">
+              <p className="font-bold mb-4 text-cyan-400">Buy Lottery Tickets</p>
+              <div className="flex justify-between mb-4">
+                <input 
+                  type="number" 
+                  value={ticketCount} 
+                  onChange={(e) => setTicketCount(Number(e.target.value))} 
+                  className="bg-black/50 p-2 rounded-lg w-1/2 text-cyan-400 border border-cyan-500/30" 
+                />
+                <button onClick={handleBuyTickets} className={buttonClass}>
+                  Buy
+                </button>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <button onClick={handleProvideLiquidity} className={buttonClass}>
+                Provide Liquidity
+              </button>
+              <button onClick={handleWithdrawLiquidity} className={buttonClass}>
+                Withdraw Liquidity
+              </button>
+            </div>
+            
+            <div className="bg-gradient-to-r from-indigo-900 to-purple-900 p-4 rounded-2xl mb-6 border border-cyan-500/30">
+              <p className="font-bold mb-2 text-cyan-400">Latest Winner</p>
+              <p className="text-pink-400">{winner ? winner : "No winner yet"}</p>
+            </div>
+            
+            {/* Placeholder for DynamicWidget */}
+            <button className={buttonClass + " w-full"}>
+              Connect Wallet
+            </button>
+          </>
+        )}
+        
+        <p className="text-cyan-400 mt-4 text-center">
+          <span className="mr-2">🏅</span>
+          Connect your wallet to participate!
+        </p>
       </div>
     </div>
   );
