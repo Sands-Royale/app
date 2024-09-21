@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@dynamic-labs/ethereum": "^4.0.0-alpha.3",
-    "@dynamic-labs/ethereum-aa": "^4.0.0-alpha.3",
     "@dynamic-labs/sdk-react-core": "^4.0.0-alpha.3",
     "@types/node": "20.5.4",
     "@types/react": "18.2.21",
@@ -34,7 +33,6 @@
   },
   "resolutions": {
     "viem": "^2.7.6",
-    "@solana/web3.js": "1.91.6",
     "rpc-websockets": "7.10.0"
   },
   "devDependencies": {
