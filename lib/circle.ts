@@ -1,6 +1,8 @@
-import { initiateUserControlledWalletsClient } from "@circle-fin/user-controlled-wallets";
+// circle.ts
+const { initiateUserControlledWalletsClient } = require("@circle-fin/user-controlled-wallets");
+
 const circleUserServerSdk = initiateUserControlledWalletsClient({
-  apiKey: process.env.CIRCLE_API_KEY!,
+  apiKey: process.env.CIRCLE_API_KEY,
 });
 
-export default circleUserServerSdk;
+module.exports = circleUserServerSdk;

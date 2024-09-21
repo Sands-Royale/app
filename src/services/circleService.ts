@@ -1,14 +1,16 @@
-import circleUserServerSdk from '../../lib/circle';
+// @ts-nocheck
 
-export interface WalletData {
+const mycircleUserServerSdk = require('../../lib/circle');
+
+interface WalletData {
   challengeId: string;
   userToken: string;
   encryptionKey?: string;
 }
 
-export const createWallet = async (userId: string): Promise<WalletData> => {
+const createWallet = async (userId: string): Promise<WalletData> => {
   try {
-    const userAccess = await circleUserServerSdk.createUserToken({
+    const userAccess = await mycircleUserServerSdk.createUserToken({
       userId,
     });
 
@@ -16,7 +18,7 @@ export const createWallet = async (userId: string): Promise<WalletData> => {
       throw new Error("Error in creating session");
     }
 
-    const newWallet = await circleUserServerSdk.createWallet({
+    const newWallet = await mycircleUserServerSdk.createWallet({
       blockchains: ["ETH-SEPOLIA"],
       accountType: "SCA",
       userId: userId,
@@ -37,15 +39,20 @@ export const createWallet = async (userId: string): Promise<WalletData> => {
   }
 };
 
-export const listWallets = async (userToken: string): Promise<string[]> => {
+const listWallets = async (userToken: string): Promise<string[]> => {
   try {
-    const wallets = await circleUserServerSdk.listWallets({
+    const wallets = await mycircleUserServerSdk.listWallets({
       userToken: userToken,
     });
 
-    return wallets.data?.wallets?.map((wallet) => wallet.id) || [];
+    return wallets.data?.wallets?.map((wallet: any) => wallet.id) || [];
   } catch (error) {
     console.error('Error listing wallets:', error);
     throw error;
   }
+};
+
+module.exports = {
+  createWallet,
+  listWallets
 };

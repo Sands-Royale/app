@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@circle-fin/user-controlled-wallets": "^4.4.1",
     "@dynamic-labs/ethereum": "4.0.0-alpha.1",
     "@dynamic-labs/sdk-react-core": "4.0.0-alpha.1",
     "@dynamic-labs/solana": "4.0.0-alpha.1",
@@ -16,6 +17,7 @@
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
     "autoprefixer": "10.4.15",
+    "bn.js": "^5.2.1",
     "dotenv": "^16.4.5",
     "eslint": "8.47.0",
     "eslint-config-next": "13.4.19",

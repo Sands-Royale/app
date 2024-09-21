@@ -7,11 +7,13 @@ import {
 } from "../lib/dynamic";
 
 import Spinner from "./Spinner";
+const circleUserServerSdk = require('../../lib/circle').default;
 
 export default function Main() {
   const { sdkHasLoaded, user } = useDynamicContext();
   const { telegramSignIn } = useTelegramLogin();
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [contractData, setContractData] = useState<any>(null); 
 
   useEffect(() => {
     if (!sdkHasLoaded) return;
@@ -25,6 +27,15 @@ export default function Main() {
 
     signIn();
   }, [sdkHasLoaded]);
+
+  const readContractData = async () => {
+    try {
+      const data = await circleUserServerSdk.readYourFunction();
+      setContractData(data);
+    } catch (error) {
+      console.error("Error reading contract data:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center text-black" style={{backgroundColor: "#f9f9fb", backgroundImage: "url('/background-pattern.svg')", backgroundBlendMode: "overlay", backgroundRepeat: "repeat"}}>
@@ -49,6 +60,18 @@ export default function Main() {
             <li>The same wallet is accessible on desktop and mobile platforms</li>
             <li>If the end user logs in with Telegram later on your site, your wallet is still available</li>
           </ul>
+          <button 
+            onClick={readContractData} 
+            className="mt-4 inline-block bg-green-600 text-white font-semibold py-2 px-4 rounded hover:bg-green-700 transition duration-300"
+          >
+            Read Contract Data
+          </button>
+          {contractData && (
+            <div className="mt-4 p-4 border border-gray-300 rounded">
+              <h4 className="font-semibold">Contract Data:</h4>
+              <pre>{JSON.stringify(contractData, null, 2)}</pre>
+            </div>
+          )}
           <a href="https://docs.dynamic.xyz/guides/integrations/telegram/telegram-auto-wallets" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block bg-blue-600 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700 transition duration-300">
             Learn More in Our Docs
           </a>
