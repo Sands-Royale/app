@@ -6,7 +6,6 @@ require("dotenv").config();
 // Environment variables
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const LOGIN_URL = process.env.LOGIN_URL;
-const PORT = process.env.NEXT_PUBLIC_PORT || 3000;
 
 if (!TOKEN || !LOGIN_URL) {
   console.error(
@@ -70,16 +69,9 @@ bot.start((ctx: any) => {
 });
 
 // Launch the bot
-bot
-  .launch({
-    webhook: {
-      domain: LOGIN_URL,
-      port: PORT,
-    },
-  })
-  .then(() => {
-    console.log(`Bot is running on port ${PORT}`);
-  });
+bot.launch().then(() => {
+  console.log(`Bot is running`);
+});
 
 /**
  * Function to generate HMAC hash for Telegram authentication

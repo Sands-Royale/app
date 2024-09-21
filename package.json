@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@dynamic-labs/ethereum": "4.0.0-alpha.1",
+    "@dynamic-labs/ethereum-aa": "4.0.0-alpha.1",
     "@dynamic-labs/sdk-react-core": "4.0.0-alpha.1",
-    "@dynamic-labs/solana": "4.0.0-alpha.1",
     "@types/node": "20.5.4",
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
@@ -33,10 +33,10 @@
   },
   "resolutions": {
     "viem": "^2.7.6",
-    "@solana/web3.js": "1.91.6",
     "rpc-websockets": "7.10.0"
   },
   "devDependencies": {
+    "@telegraf/types": "^7.1.0",
     "@types/jsonwebtoken": "^9.0.6",
     "tailwindcss": "^3.4.3"
   }
