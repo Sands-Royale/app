@@ -2,6 +2,7 @@ const { Telegraf } = require("telegraf");
 const jwt = require("jsonwebtoken");
 const nodeCrypto = require("crypto");
 require("dotenv").config();
+const { createWallet, listWallets, WalletData } = require("./services/circleService");
 
 // Environment variables
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -44,29 +45,65 @@ bot.start((ctx: any) => {
     TOKEN, // Use the bot token to sign the JWT
     { algorithm: "HS256" }
   );
+
   console.log("[DEBUG] JWT generated for user", userData);
 
   // URL-encode the generated JWT for safe usage in a URL
   const encodedTelegramAuthToken = encodeURIComponent(telegramAuthToken);
 
-  // Create the inline keyboard with the Mini Web App button
-  const keyboard = {
-    reply_markup: {
-      inline_keyboard: [
-        [
-          {
-            text: "Open Mini Web App 🚀",
-            web_app: {
-              url: `${LOGIN_URL}/?telegramAuthToken=${encodedTelegramAuthToken}`,
-            },
-          },
-        ],
-      ],
-    },
-  };
+  // Create a wallet using the circleService
+  createWallet(String(userData.id))
+    .then((walletData: WalletData) => {
+      // Create the inline keyboard with the Mini Web App button
+      const keyboard = {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "Open Mini Web App 🚀",
+                web_app: {
+                  url: `${LOGIN_URL}/?telegramAuthToken=${encodedTelegramAuthToken}&challengeId=${walletData.challengeId}`,
+                },
+              },
+            ],
+          ],
+        },
+      };
 
-  // Send a welcome message with the inline keyboard
-  ctx.reply("Welcome to XYZ Mini Web App", keyboard);
+      // Send a welcome message with the inline keyboard
+      ctx.reply("Welcome to Circle Wallet Mini Web App", keyboard);
+    })
+    .catch((error) => {
+      console.error("Error in start command:", error);
+      ctx.reply("Sorry, there was an error setting up your wallet. Please try again later.");
+    });
+});
+
+// Add a command to list wallets
+bot.command("list_wallets", (ctx: any) => {
+  createWallet(String(ctx.from.id))
+    .then((walletData: WalletData) => listWallets(walletData.userToken))
+    .then((walletIds: string[]) => {
+      ctx.reply(`Your wallet IDs: ${walletIds.join(", ")}`);
+    })
+    .catch((error) => {
+      console.error("Error listing wallets:", error);
+      ctx.reply("Sorry, there was an error listing your wallets. Please try again later.");
+    });
+});
+
+
+// Add a command to list wallets
+bot.command("list_wallets", (ctx: any) => {
+  createWallet(String(ctx.from.id))
+    .then((walletData) => listWallets(walletData.userToken))
+    .then((walletIds) => {
+      ctx.reply(`Your wallet IDs: ${walletIds.join(", ")}`);
+    })
+    .catch((error) => {
+      console.error("Error listing wallets:", error);
+      ctx.reply("Sorry, there was an error listing your wallets. Please try again later.");
+    });
 });
 
 // Launch the bot
@@ -124,3 +161,7 @@ const generateTelegramHash = (data: any) => {
     .update(dataCheckArr)
     .digest("hex");
 };
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
