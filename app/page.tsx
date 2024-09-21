@@ -58,7 +58,11 @@ export default function Main() {
   const time = formatTime(timeRemaining);
 
   const handleBuyTickets = () => {
+    setIsLoading(true); // Set loading to true when starting the process
     alert(`Buying ${ticketCount} tickets`);
+    setTimeout(() => {
+      setIsLoading(false); // Set loading to false after the process is complete
+    }, 2000); 
   };
 
   const handleProvideLiquidity = () => {
