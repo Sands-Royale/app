@@ -1,6 +1,7 @@
 import { isEthereumWallet } from "@/lib/dynamic";
-import { WalletClient } from "viem";
+import { formatUnits, parseUnits, WalletClient } from "viem";
 import { Wallet } from "@/lib/dynamic";
+import { USDC_DECIMALS } from "./constants";
 
 const formatTime = (seconds: number) => {
   const hours = Math.floor(seconds / 3600);
@@ -10,7 +11,7 @@ const formatTime = (seconds: number) => {
 };
 
 const getWalletClient = async (
-  primaryWallet: Wallet
+  primaryWallet: Wallet | null
 ): Promise<WalletClient | null> => {
   try {
     if (!primaryWallet || !isEthereumWallet(primaryWallet)) return null;
@@ -29,4 +30,21 @@ const formattedJackpotSize = (jackpotSize: number) =>
     minimumFractionDigits: 0,
   }).format(jackpotSize);
 
-export { formatTime, getWalletClient, formattedJackpotSize };
+const formatAmount = (
+  amount: bigint | number,
+  decimals: number = USDC_DECIMALS
+) => {
+  return formatUnits(BigInt(amount), decimals);
+};
+
+const parseAmount = (amount: number, decimals: number = USDC_DECIMALS) => {
+  return parseUnits(String(amount), decimals);
+};
+
+export {
+  formatTime,
+  getWalletClient,
+  formattedJackpotSize,
+  formatAmount,
+  parseAmount,
+};

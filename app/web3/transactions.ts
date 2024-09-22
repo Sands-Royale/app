@@ -1,41 +1,69 @@
 import { pubClient } from "./viem";
-import { erc20Abi, WalletClient } from "viem";
-import { contractAddress } from "../helpers/constants";
+import { Address, WalletClient } from "viem";
+import { lotteryManagerABI, lotteryABI, v3SwapRouterABI } from "./abi";
+import { parseAmount } from "../helpers/utils";
+import { ADDRESSES } from "../helpers/constants";
 
-const handleRead = async (setSymbol: (symbol: string) => void) => {
+const addLiquidity = async (walletClient: WalletClient, amount: number) => {
   try {
-    const symbol = await pubClient.readContract({
-      address: contractAddress,
-      abi: erc20Abi,
-      functionName: "symbol",
-    });
-    setSymbol(symbol);
-  } catch (error) {
-    console.error("Error reading from contract:", error);
-    setSymbol("Error reading symbol");
-  }
-};
-
-const handleWrite = async (walletClient: WalletClient) => {
-  try {
-    if (!walletClient || !walletClient.account) {
-      console.error("No wallet client address found");
-      return;
-    }
-
     const { request } = await pubClient.simulateContract({
-      address: contractAddress,
-      abi: erc20Abi,
-      functionName: "approve",
-      args: [walletClient.account.address, BigInt(1)],
+      address: ADDRESSES.LOTTERY_MANAGER,
+      abi: lotteryManagerABI,
+      functionName: "addLiquidity",
+      args: [walletClient.account?.address!, parseAmount(amount)],
       account: walletClient.account,
     });
 
     const hash = await walletClient.writeContract(request);
     return await pubClient.waitForTransactionReceipt({ hash });
   } catch (error) {
-    console.error("Error writing to contract:", error);
+    console.error("Error adding liquidity:", error);
   }
 };
 
-export { handleRead, handleWrite };
+const removeLiquidity = async (walletClient: WalletClient, amount: number) => {
+  try {
+    const { request } = await pubClient.simulateContract({
+      address: ADDRESSES.LOTTERY_MANAGER,
+      abi: lotteryManagerABI,
+      functionName: "removeLiquidity",
+      args: [walletClient.account?.address!, parseAmount(amount)],
+      account: walletClient.account,
+    });
+
+    const hash = await walletClient.writeContract(request);
+    return await pubClient.waitForTransactionReceipt({ hash });
+  } catch (error) {
+    console.error("Error removing liquidity:", error);
+  }
+};
+
+const swapInTicket = async (
+  walletClient: WalletClient,
+  amountIn: number,
+  deadline: number = Math.floor(Date.now() / 1000) + 60 * 20
+) => {
+  try {
+    const { request } = await pubClient.simulateContract({
+      address: ADDRESSES.V3_SWAP_ROUTER,
+      abi: v3SwapRouterABI,
+      functionName: "swapExactInputSingle",
+      args: [
+        ADDRESSES.USDC,
+        ADDRESSES.LOTTERY_TOKEN,
+        amountIn,
+        walletClient.account?.address!,
+        deadline,
+        parseAmount(amountIn),
+      ],
+      account: walletClient.account,
+    });
+
+    const hash = await walletClient.writeContract(request);
+    return await pubClient.waitForTransactionReceipt({ hash });
+  } catch (error) {
+    console.error("Error buying ticket:", error);
+  }
+};
+
+export { addLiquidity, removeLiquidity, swapInTicket };

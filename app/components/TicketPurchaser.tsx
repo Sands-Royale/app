@@ -1,7 +1,7 @@
 type TicketPurchaserProps = {
   ticketCount: number;
   setTicketCount: (count: number) => void;
-  handleBuyTickets: () => void;
+  handleBuyTickets: (amount: number) => void;
   buttonClass: string;
 };
 
@@ -21,7 +21,10 @@ export default function TicketPurchaser({
           onChange={(e) => setTicketCount(Number(e.target.value))}
           className="bg-black/50 p-2 rounded-lg w-1/2 text-cyan-400 border border-cyan-500/30"
         />
-        <button onClick={handleBuyTickets} className={buttonClass}>
+        <button
+          onClick={() => handleBuyTickets(ticketCount)}
+          className={buttonClass}
+        >
           Buy
         </button>
       </div>

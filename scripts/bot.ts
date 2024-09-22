@@ -54,7 +54,7 @@ bot.start((ctx: any) => {
       inline_keyboard: [
         [
           {
-            text: "Open Mini Web App 🚀",
+            text: "Open Lottery Web App 🚀",
             web_app: {
               url: `${LOGIN_URL}/?telegramAuthToken=${encodedTelegramAuthToken}`,
             },
@@ -65,12 +65,12 @@ bot.start((ctx: any) => {
   };
 
   // Send a welcome message with the inline keyboard
-  ctx.reply("Welcome to XYZ Mini Web App", keyboard);
+  ctx.reply("Punch in your chance to win big 💰", keyboard);
 });
 
 // Launch the bot
 bot.launch().then(() => {
-  console.log(`Bot is running`);
+  console.log(`Bot is running 🚀`);
 });
 
 /**

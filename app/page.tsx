@@ -6,7 +6,6 @@ import {
   useTelegramLogin,
   useDynamicContext,
 } from "../lib/dynamic";
-import { handleRead, handleWrite } from "./web3/transactions";
 import Spinner from "./components/Spinner";
 import TicketPurchaser from "./components/TicketPurchaser";
 import LiquidityProvider from "./components/LiquidityProvider";
@@ -17,10 +16,15 @@ import TabNavigation from "./components/navigations/TabNavigation";
 import Header from "./components/Header";
 import WalletConnection from "./components/WalletConnection";
 import { TabNames } from "./helpers/constants";
-import { formatTime } from "./helpers/utils";
+import { formatTime, getWalletClient } from "./helpers/utils";
+import {
+  addLiquidity,
+  removeLiquidity,
+  swapInTicket,
+} from "./web3/transactions";
 
 export default function Main() {
-  const { sdkHasLoaded, user } = useDynamicContext();
+  const { sdkHasLoaded, user, primaryWallet } = useDynamicContext();
   const { telegramSignIn } = useTelegramLogin();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isWalletLoading, setIsWalletLoading] = useState<boolean>(true);
@@ -51,20 +55,35 @@ export default function Main() {
     signIn();
   }, [sdkHasLoaded]);
 
-  const handleBuyTickets = () => {
+  const handleBuyTickets = async (amount: number) => {
     setIsLoading(true); // Set loading to true when starting the process
-    alert(`Buying ${ticketCount} tickets`);
+    const walletClient = await getWalletClient(primaryWallet);
+    if (!walletClient) {
+      console.error("No wallet client found");
+      return;
+    }
+    await swapInTicket(walletClient, amount);
     setTimeout(() => {
       setIsLoading(false); // Set loading to false after the process is complete
     }, 2000);
   };
 
-  const handleProvideLiquidity = () => {
-    alert("Providing liquidity");
+  const handleProvideLiquidity = async (amount: number) => {
+    const walletClient = await getWalletClient(primaryWallet);
+    if (!walletClient) {
+      console.error("No wallet client found");
+      return;
+    }
+    await addLiquidity(walletClient, amount);
   };
 
-  const handleWithdrawLiquidity = () => {
-    alert("Withdrawing liquidity");
+  const handleWithdrawLiquidity = async (amount: number) => {
+    const walletClient = await getWalletClient(primaryWallet);
+    if (!walletClient) {
+      console.error("No wallet client found");
+      return;
+    }
+    await removeLiquidity(walletClient, amount);
   };
 
   const buttonClass =
